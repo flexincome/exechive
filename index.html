@@ -1,20 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ExecHive - Your Grok 4.20 AI Executive Team</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExecHive — Your Grok 4.20 AI Executive Team</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: Arial; text-align: center; padding: 50px; background: #0a0a0a; color: white; }
-    h1 { font-size: 48px; }
-    .price { font-size: 32px; color: #00ff9d; }
-    button { background: #00ff9d; color: black; padding: 15px 30px; font-size: 20px; border: none; cursor: pointer; margin: 20px; }
+    body { font-family: system-ui, sans-serif; }
+    .chat-bubble { max-width: 80%; padding: 14px 18px; border-radius: 18px; }
   </style>
 </head>
-<body>
-  <h1>🚀 ExecHive</h1>
-  <h2>Your always-on Grok 4.20 AI Executive Team</h2>
-  <p>Get unlimited 4-agent help for strategy, marketing, ops, finance — powered by the exact team you just tested.</p>
-  <div class="price">$49 / month</div>
-  <button onclick="alert('Coming in Step 8 — you will have real Stripe payments!')">Start Free 7-Day Trial</button>
-  <p>Already running on your Mac. Next: live on exechive.ai so customers pay you every month.</p>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
+  <div class="max-w-3xl mx-auto w-full p-6 flex-1 flex flex-col">
+    <div class="flex items-center gap-3 mb-8">
+      <span class="text-4xl">🚀</span>
+      <div>
+        <h1 class="text-4xl font-bold tracking-tight">ExecHive</h1>
+        <p class="text-zinc-400">Powered by Grok 4.20 • 4-agent executive team</p>
+      </div>
+    </div>
+
+    <div id="messages" class="flex-1 space-y-6 overflow-y-auto mb-6 pr-4"></div>
+
+    <div class="sticky bottom-0 bg-zinc-950 pt-4">
+      <div class="flex gap-3">
+        <input id="input" 
+               type="text" 
+               placeholder="Ask your executive team anything..." 
+               class="flex-1 bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 focus:outline-none focus:border-emerald-500 text-lg">
+        <button onclick="sendMessage()" 
+                class="bg-emerald-500 hover:bg-emerald-600 px-10 py-4 rounded-2xl font-semibold transition">
+          Send
+        </button>
+      </div>
+      <p class="text-center text-xs text-zinc-500 mt-3">$49/month • Unlimited • Cancel anytime</p>
+    </div>
+  </div>
+
+  <script>
+    const messages = document.getElementById('messages');
+    const input = document.getElementById('input');
+
+    function addMessage(text, isUser) {
+      const div = document.createElement('div');
+      div.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
+      div.innerHTML = `
+        <div class="chat-bubble ${isUser ? 'bg-emerald-600' : 'bg-zinc-800'}">
+          ${text}
+        </div>
+      `;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, true);
+      input.value = '';
+
+      const res = await fetch('/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+
+      const data = await res.json();
+      addMessage(data.final_response || data, false);
+    }
+
+    // Allow Enter key
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+  </script>
 </body>
 </html>
